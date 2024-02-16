@@ -1,8 +1,8 @@
 package com.cooksys.ftd.assignments.collections.model;
 
+import java.util.ArrayList;
 import java.util.List;
-
-import com.cooksys.ftd.assignments.collections.util.MissingImplementationException;
+import java.util.Objects;
 
 /**
  * TODO: Implement this class
@@ -13,17 +13,14 @@ import com.cooksys.ftd.assignments.collections.util.MissingImplementationExcepti
  */
 public class Manager implements Employee {
 
-    // TODO: Does this class need private fields? If so, add them here
+	private Manager manager;
+	private String name;
+	
 
-    /**
-     * TODO: Implement this constructor.
-     *
-     * @param name the name of the manager to be created
-     */
-    public Manager(String name) {
-        throw new MissingImplementationException();
-    }
+    //Constructor: @param name the name of the manager to be created
+    public Manager(String name) { this.name = name; }
 
+    
     /**
      *  TODO: Implement this constructor.
      *
@@ -31,38 +28,21 @@ public class Manager implements Employee {
      * @param manager the direct manager of the manager to be created
      */
     public Manager(String name, Manager manager) {
-        throw new MissingImplementationException();
+    	this.name = name;
+    	this.manager = manager;
     }
 
-    /**
-     * TODO: Implement this getter.
-     *
-     * @return the name of the manager
-     */
-    @Override
-    public String getName() {
-        throw new MissingImplementationException();
-    }
 
-    /**
-     * TODO: Implement this getter.
-     *
-     * @return {@code true} if this manager has a manager, or {@code false} otherwise
-     */
-    @Override
-    public boolean hasManager() {
-        throw new MissingImplementationException();
-    }
+    @Override //Getter: @return the name of the manager
+    public String getName() { return name; }
 
-    /**
-     * TODO: Implement this getter.
-     *
-     * @return the manager of this manager, or {@code null} if it has none
-     */
-    @Override
-    public Manager getManager() {
-        throw new MissingImplementationException();
-    }
+
+    @Override //Getter: @return {@code true} if this manager has a manager, or {@code false} otherwise
+    public boolean hasManager() { return manager != null; } // remember BOOLEAN
+
+    
+    @Override //Getter: @return the manager of this manager, or {@code null} if it has none
+    public Manager getManager() { return manager; } // this returns the manager of what was passed in
 
     /**
      * TODO: Implement this method.
@@ -79,10 +59,43 @@ public class Manager implements Employee {
      */
     @Override
     public List<Manager> getChainOfCommand() {
-        throw new MissingImplementationException();
+    	// Manager will change until it is null - reaches the top of the hierarchy
+    	List<Manager> ManagerChain = new ArrayList<Manager>();	// Create a new list to store our Chain
+    	if(manager == null) { return ManagerChain; } // If manager = null, return an empty List
+    	else {
+    		Manager current = manager; // Create new object 'current' of type 'Manager' that is a copy of 'manager'
+    		ManagerChain.add(manager); // Add our initial argument to ManagerChain
+    		while(current.hasManager() == true) { // If the current argument has a manager, continue
+    			ManagerChain.add(current.getManager()); // add "current's" manger to ManagerChain
+    			current = current.getManager(); // iterate by making current equal to current's manager
+    		}
+    	}
+    	return ManagerChain;
     }
 
+
+	@Override
+	public int hashCode() {
+		return Objects.hash(manager, name);
+	}
+
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		Manager other = (Manager) obj;
+		return Objects.equals(manager, other.manager) && Objects.equals(name, other.name);
+	}
+
+	
+
     // TODO: Does this class need custom .equals() and .hashcode() methods? If so, implement them here.
+
 
     // TODO [OPTIONAL]: Consider adding a custom .toString() method here if you want to debug your code with System.out.println() statements
 

@@ -1,9 +1,9 @@
 package com.cooksys.ftd.assignments.collections.model;
 
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
-
-import com.cooksys.ftd.assignments.collections.util.MissingImplementationException;
 
 public class OrgChart {
 
@@ -11,6 +11,7 @@ public class OrgChart {
     //  Add those fields here. Consider how you want to store the data, and which collection types to use to make
     //  implementing the other methods as easy as possible. There are several different ways to approach this problem, so
     //  experiment and don't be afraid to change how you're storing your data if it's not working out!
+	private Set<Employee> orgChart = new HashSet<>();
 
     /**
      * TODO: Implement this method
@@ -38,7 +39,15 @@ public class OrgChart {
      * @return true if the {@code Employee} was added successfully, false otherwise
      */
     public boolean addEmployee(Employee employee) {
-        throw new MissingImplementationException();
+    	// First, check all 'return false' conditions
+    	if (employee == null || hasEmployee(employee) || (!employee.hasManager() && !(employee instanceof Manager))) { return false; }
+    	if(employee.hasManager() && !hasEmployee(employee.getManager())) // check if employee has a manager & manager is not already on the list
+    	{	
+    		//go through employees chain of command, add managers before adding employees
+    		orgChart.addAll(employee.getChainOfCommand()); //don't have to check for duplicates because HashSet does not allow it
+    	}
+    	orgChart.add(employee); // add the passed in employee
+    	return true;
     }
 
     /**
@@ -50,7 +59,7 @@ public class OrgChart {
      * @return true if the {@code Employee} has been added to the {@code OrgChart}, false otherwise
      */
     public boolean hasEmployee(Employee employee) {
-        throw new MissingImplementationException();
+        return orgChart.contains(employee); // Does orgChart contain the 'employee' that has been passed in
     }
 
     /**
@@ -64,7 +73,9 @@ public class OrgChart {
      *         been added to the {@code OrgChart}
      */
     public Set<Employee> getAllEmployees() {
-        throw new MissingImplementationException();
+        return new HashSet<>(orgChart); 
+        // calling in the set constructor, & passing in another set will make a copy of that set & return the copy
+        // return orgChart; will fail a test, because we are returning the memory address to my internal set
     }
 
     /**
@@ -78,8 +89,16 @@ public class OrgChart {
      *         have been added to the {@code OrgChart}
      */
     public Set<Manager> getAllManagers() {
-        throw new MissingImplementationException();
+    	Set<Manager> AllManagers = new HashSet<>(); // Create new set to store all managers
+    	for (Employee x : orgChart) // For each x of Type 'Employee' in orgChart
+    	{ // everything in orgChart is currently 'Employee' 
+    		if(x instanceof Manager) // if x is of Type 'Manager'
+    		{ AllManagers.add((Manager) x); } // Add all x that meet the conditions into the Set
+    	} // casting x as Manager instead of Employee
+    	return AllManagers;
     }
+        // create a new empty set, loop over all the employees in orgChart
+        // if there is an instanceOf manager, add it to the new set, then return the new set
 
     /**
      * TODO: Implement this method
@@ -99,8 +118,16 @@ public class OrgChart {
      *         or if there are no subordinates for the given {@code Manager}
      */
     public Set<Employee> getDirectSubordinates(Manager manager) {
-        throw new MissingImplementationException();
+    	Set<Employee> DirectSub = new HashSet<>();
+    	if(!hasEmployee(manager)) { return DirectSub; } // First Check if the given manager is in my orgChart, if not, return an empty List
+    	for (Employee x : orgChart) // loop through the set to find all other employees, 
+    	{
+    		if(x.hasManager() && x.getManager().equals(manager)) { DirectSub.add(x); } // x is of type 'Employee', no need to cast
+    		// if that employee's manager is the same as passed in manager
+    	}
+    	return DirectSub;
     }
+
 
     /**
      * TODO: Implement this method
@@ -119,7 +146,12 @@ public class OrgChart {
      *         associated {@code Manager}, or an empty map if the {@code OrgChart} is empty.
      */
     public Map<Manager, Set<Employee>> getFullHierarchy() {
-        throw new MissingImplementationException();
+    	Map<Manager, Set<Employee>> FullHierarchy = new HashMap<>(); // Outside of the loop, create a new map
+    	for(Manager x : getAllManagers()) { // Loop over all managers
+    		FullHierarchy.put(x, getDirectSubordinates(x)); // Convert your set to a Map, make every single manager in your set a key
+    		// The value associated with each key should be that manager's direct subordinates
+    	}
+        return FullHierarchy;
     }
 
 }
